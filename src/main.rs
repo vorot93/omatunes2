@@ -10,11 +10,15 @@ mod stats;
 mod ui;
 
 fn main() -> iced::Result {
+    // iced 0.13 otherwise prefers the low-power GPU without antialiasing. On
+    // dual-GPU Wayland systems this can yield a blank window when the discrete
+    // GPU drives the display. Set the default before any threads start, while
+    // preserving explicit user preferences (high, low, or none).
+    if std::env::var_os("WGPU_POWER_PREF").is_none() {
+        std::env::set_var("WGPU_POWER_PREF", "high");
+    }
     if std::env::var_os("RUST_LOG").is_some() {
         let _ = env_logger::try_init();
-    }
-    if std::env::var_os("WGPU_BACKEND").is_none() {
-        std::env::set_var("WGPU_BACKEND", "gl,vulkan");
     }
     config::load();   // first: define music_dir, language, volume…
     db::init();       // initialize local database

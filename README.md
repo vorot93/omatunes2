@@ -125,6 +125,30 @@ If the entry doesn't appear right away, log out and back in — some launchers o
 
 The entry assumes `omatunes` is on your `PATH`. If you put the binary somewhere unusual, change `Exec=` to the full path.
 
+### GPU selection and blank windows
+
+omaTUNES defaults `WGPU_POWER_PREF` to `high` when it is unset. iced 0.13
+otherwise prefers a low-power GPU; on an Intel/NVIDIA Wayland system with the
+display driven by NVIDIA, selecting Intel was associated with intermittent blank
+windows. Preferring the high-performance GPU avoids that selection on this setup.
+This is a preference, not automatic detection of the GPU driving your display,
+and may increase power use on hybrid laptops.
+
+Explicit preferences are preserved. To prefer the integrated GPU or use wgpu's
+neutral preference instead:
+
+```bash
+WGPU_POWER_PREF=low omatunes
+WGPU_POWER_PREF=none omatunes
+```
+
+To inspect the selected adapter, launch with
+`RUST_LOG=iced_wgpu=info,wgpu_core=info omatunes` and look for `Selected: AdapterInfo`.
+`WGPU_BACKEND` remains available as an override (for example,
+`WGPU_BACKEND=gl omatunes` to try OpenGL). A comma-separated backend list such as
+`gl,vulkan` only enables those backends; it neither orders them nor forces a
+fallback when a window presents blank frames.
+
 ---
 
 
